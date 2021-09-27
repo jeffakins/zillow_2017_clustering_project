@@ -7,7 +7,6 @@ import seaborn as sns
 import os
 import env
 
-
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
@@ -108,19 +107,27 @@ def wrangle_zillow():
          'propertylandusetypeid',
          'propertyzoningdesc',
          'censustractandblock',
-         'propertylandusedesc']
+         'propertylandusedesc',
+         'buildingqualitytypeid',
+         'rawcensustractandblock',
+         'regionidcity',
+         'regionidcounty',
+         'regionidzip',
+         'unitcnt',
+         'assessmentyear',
+         'lotsizesquarefeet']
 
     df = remove_columns(df, dropcols)
 
     # replace nulls in unitcnt with 1
-    df.unitcnt.fillna(1, inplace = True)
+    #df.unitcnt.fillna(1, inplace = True)
 
     # assume that since this is Southern CA, null means 'None' for heating system
     df.heatingorsystemdesc.fillna('None', inplace = True)
 
     # replace nulls with median values for select columns
-    df.lotsizesquarefeet.fillna(7313, inplace = True)
-    df.buildingqualitytypeid.fillna(6.0, inplace = True)
+    #df.lotsizesquarefeet.fillna(7313, inplace = True)
+    #df.buildingqualitytypeid.fillna(6.0, inplace = True)
 
     # Columns to look for outliers
     df = df[df.taxvaluedollarcnt < 5_000_000]
@@ -155,37 +162,10 @@ def outlier_function(df, cols, k):
         df = df[(df[col] < upper_bound) & (df[col] > lower_bound)]
     return df
 
-def get_mall_customers(sql):
-    url = get_db_url('mall_customers')
-    mall_df = pd.read_sql(sql, url, index_col='customer_id')
-    return mall_df
-
-
 def train_validate_test_split(df):
     train_and_validate, test = train_test_split(df, train_size=0.8, random_state=123)
     train, validate = train_test_split(train_and_validate, train_size=0.75, random_state=123)
     return train, validate, test
-
-
-def wrangle_mall_df():
-
-    # acquire data
-    sql = 'select * from customers'
-
-
-    # acquire data from SQL server
-    mall_df = get_mall_customers(sql)
-
-    # handle outliers
-    mall_df = outlier_function(mall_df, ['age', 'spending_score', 'annual_income'], 1.5)
-
-    # get dummy for gender column
-    dummy_df = pd.get_dummies(mall_df.gender, drop_first=True)
-    mall_df = pd.concat([mall_df, dummy_df], axis=1).drop(columns = ['gender'])
-
-    train, validate, test = train_validate_test_split(mall_df)
-
-    return min_max_scaler(train, validate, test)
 
 def nulls_by_col(df):
     num_missing = df.isnull().sum()

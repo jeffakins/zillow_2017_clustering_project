@@ -1,12 +1,5 @@
-# Zillow Clustering and Regression Project
-##  What is driving the errors in the Zestimates?
+# Zillow Clustering and Regression Project: What is driving the errors in Zestimates?
 - By Jeff Akins
-
-For this project you will continue working with the zillow dataset. Continue to use the 2017 properties and predictions data for single unit / single family homes.
-
-In addition to continuing work on your previous project, you should incorporate clustering methodologies on this project.
-
-Your audience for this project is a data science team. The presentation will consist of a notebook demo of the discoveries you made and work you have done related to uncovering what the drivers of the error in the zestimate is.
 
 ## Project Goal: To determine the drivers of error in the Zestimates
 ### Additional Goals:
