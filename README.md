@@ -22,7 +22,7 @@
 ## Project Specifications
 
 ### Plan:
-**Trello Board**
+**Trello Board:**
 https://trello.com/b/NO8GyMgY/zillow-clustering-project
 
 ### Acquire:
