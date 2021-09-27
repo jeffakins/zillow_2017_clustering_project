@@ -115,7 +115,11 @@ def wrangle_zillow():
          'regionidzip',
          'unitcnt',
          'assessmentyear',
-         'lotsizesquarefeet']
+         'lotsizesquarefeet',
+         'roomcnt',
+         'structuretaxvaluedollarcnt',
+         'landtaxvaluedollarcnt',
+         'taxamount']
 
     df = remove_columns(df, dropcols)
 
