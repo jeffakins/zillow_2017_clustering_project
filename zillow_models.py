@@ -204,8 +204,8 @@ def make_metric_df(model_name, rmse_train, rmse_validate, r_sqr, metric_df):
         metric_df = pd.DataFrame(data=[                         # Dictionary
             {
                 'model': model_name,                            # Pass Model Name
-                'RMSE Train': round(rmse_train, 5),             # Pass Train RMSE Information
-                'RMSE Validate': round(rmse_validate, 5),       # Pass Validate RMSE Information
+                'RMSE Train': round(rmse_train, 6),             # Pass Train RMSE Information
+                'RMSE Validate': round(rmse_validate, 6),       # Pass Validate RMSE Information
                 'r^2 Validate': r_sqr                           # Pass r^2 info
             }])
         return metric_df
@@ -213,8 +213,8 @@ def make_metric_df(model_name, rmse_train, rmse_validate, r_sqr, metric_df):
         return metric_df.append(
             {
                 'model': model_name,                            # Pass Model Name
-                'RMSE Train': round(rmse_train, 5),             # Pass Train RMSE Information
-                'RMSE Validate': round(rmse_validate, 5),       # Pass Validate RMSE Information
+                'RMSE Train': round(rmse_train, 6),             # Pass Train RMSE Information
+                'RMSE Validate': round(rmse_validate, 6),       # Pass Validate RMSE Information
                 'r^2 Validate': r_sqr                           # Pass r^2 info
             }, ignore_index=True)
 
