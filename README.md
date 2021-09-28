@@ -45,6 +45,7 @@ https://trello.com/b/NO8GyMgY/zillow-clustering-project
 - The data was acquired form Codeup's MySQL server
 - Additional details on data acquisition can be found in the **wrangle_zillow.py** file included in this repo
 ### Data Prep:
+- Only single unit / single family homes were included
 - Homes with a value over $5M were excluded
 - Homes over 8000 sqft were excluded
 - Here is a list of columns that were dropped due to a high number of nulls or due to information that was redundant or irrelevant to determining drivers of logerror:
@@ -70,7 +71,7 @@ https://trello.com/b/NO8GyMgY/zillow-clustering-project
     - structuretaxvaluedollarcnt
     - landtaxvaluedollarcnt
     - taxamount
-- The data was split into train, validate, and test
+- The data was then split into train, validate, and test
 ### Explore:
 - All exploration was conducted on train
 - Visual exploration via histograms and pairplots were conducted
@@ -79,8 +80,7 @@ https://trello.com/b/NO8GyMgY/zillow-clustering-project
 - Initial linear regression was conducted using various models using (Zestimate) logerror as the target vs the following features:
     - bathroomcnt
     - bedroomcnt 
-    - calculatedfinishedsquarefeet  
-    - fips                          
+    - calculatedfinishedsquarefeet                           
     - latitude                      
     - longitude                     
     - yearbuilt                     
@@ -88,7 +88,7 @@ https://trello.com/b/NO8GyMgY/zillow-clustering-project
 - Clustering was conducted around location, home value, home size, and logerror
 - logerror clustering features were used to determine the top drivers of error for each cluster
 ## Conclusion:
-- Using the clustered dataframe subsets of train, based on legerror bands, did not improve the logerror prediction of validate over simply passing all of the train datafram to the regression models. More exploration is needed.
+- Using the clustered dataframe subsets of train, based on legerror bands, did not improve the logerror prediction of validate over simply passing all of the train dataframe to the regression models. More exploration is needed.
 
 ## How to Reproduce:
 - Use your own env file for login information for the Codeup SQL server
@@ -98,3 +98,4 @@ https://trello.com/b/NO8GyMgY/zillow-clustering-project
     - explore_evaluate.py
     - wrangle_zillow.py
     - zillow_models.py
+- Open zillow_clustering_project.ipynb in a jupyter notebook and explore!
