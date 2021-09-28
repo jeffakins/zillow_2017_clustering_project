@@ -57,6 +57,7 @@ def explore_multivariate(train, target, cat_vars, quant_vars):
     plot_all_continuous_vars(train, target, quant_vars)
     plt.show()    
 
+# Individual Functions:
 
 ### Univariate
 
