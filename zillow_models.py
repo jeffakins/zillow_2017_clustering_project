@@ -46,14 +46,16 @@ def baseline(y_train, y_validate):
     y_validate['pred_mean'] = pred_mean_validate
     # Find the Root Mean Squared Error
         #Train
-    rmse_y_train = mean_squared_error(y_train.logerror, y_train.pred_mean) ** .5
+    rmse_train = mean_squared_error(y_train.logerror, y_train.pred_mean) ** .5
         #Validate
-    rmse_y_validate = mean_squared_error(y_validate.logerror, y_validate.pred_mean) ** .5
+    rmse_validate = mean_squared_error(y_validate.logerror, y_validate.pred_mean) ** .5
 
-    print("Baseline RMSE using Mean\nTrain/In-Sample: ", round(rmse_y_train, 2), 
-      "\nValidate/Out-of-Sample: ", round(rmse_y_validate, 2))
+    r_sqr = explained_variance_score(y_validate.logerror, y_validate.pred_mean)
 
-    return y_train, y_validate
+    # print("Baseline RMSE using Mean\nTrain/In-Sample: ", round(rmse_train, 2), 
+    #   "\nValidate/Out-of-Sample: ", round(rmse_validate, 2))
+
+    return rmse_train, rmse_validate, r_sqr
 
 
 #---------------Linear Regression (OLS)---------------------------------------------------------------
@@ -78,9 +80,11 @@ def linear_regression(X_train, y_train, X_validate, y_validate):
     # evaluate: rmse
     rmse_validate = mean_squared_error(y_validate.logerror, y_validate.pred_lm) ** (1/2)
 
-    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", round(rmse_train, 2), 
-        "\nValidation/Out-of-Sample: ", round(rmse_validate, 2))
-    return rmse_validate, y_validate
+    r_sqr = explained_variance_score(y_validate.logerror, y_validate.pred_lm)
+
+    # print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", round(rmse_train, 2), 
+    #     "\nValidation/Out-of-Sample: ", round(rmse_validate, 2))
+    return rmse_train, rmse_validate, r_sqr
     
 
 #---------------LassoLars------------------------------------------------------------------------------
@@ -109,9 +113,11 @@ def lasso_lars(X_train, y_train, X_validate, y_validate):
     # evaluate: rmse
     rmse_validate = mean_squared_error(y_validate.logerror, y_validate.pred_lars) ** (1/2)
 
-    print("RMSE for Lasso + Lars\nTraining/In-Sample: ", round(rmse_train, 2), 
-        "\nValidation/Out-of-Sample: ", round(rmse_validate, 2))
-    return y_validate
+    r_sqr = explained_variance_score(y_validate.logerror, y_validate.pred_lars)
+
+    # print("RMSE for Lasso + Lars\nTraining/In-Sample: ", round(rmse_train, 2), 
+    #     "\nValidation/Out-of-Sample: ", round(rmse_validate, 2))
+    return rmse_train, rmse_validate, r_sqr
 
 
 #---------------Tweedie Regressor (GLM)----------------------------------------------------------------
@@ -146,10 +152,12 @@ def tweedie_regressor(X_train, y_train, X_validate, y_validate, power=1, alpha=0
     # evaluate: rmse
     rmse_validate = mean_squared_error(y_validate.logerror, y_validate.pred_glm) ** (1/2)
 
-    print("RMSE for GLM using Tweedie, power=", power, " & alpha=", alpha, 
-        "\nTraining/In-Sample: ", round(rmse_train, 2), 
-        "\nValidation/Out-of-Sample: ", round(rmse_validate, 2))
-    return y_validate
+    r_sqr = explained_variance_score(y_validate.logerror, y_validate.pred_glm)
+
+    # print("RMSE for GLM using Tweedie, power=", power, " & alpha=", alpha, 
+    #     "\nTraining/In-Sample: ", round(rmse_train, 2), 
+    #     "\nValidation/Out-of-Sample: ", round(rmse_validate, 2))
+    return rmse_train, rmse_validate, r_sqr
 
 
 #---------------Polynomial Regression------------------------------------------------------------------
@@ -161,69 +169,53 @@ def polynomial_regression(X_train, y_train, X_validate, y_validate, degree=2):
 
     pf = PolynomialFeatures(degree)
 
-    # fit and transform X_train_scaled
+        # fit and transform X_train_scaled
     X_train_degree2 = pf.fit_transform(X_train)
-
-    # transform X_validate_scaled & X_test_scaled
+        # transform X_validate_scaled & X_test_scaled
     X_validate_degree2 = pf.transform(X_validate)
-    # X_test_degree2 = pf.transform(X_test)
-
-    # create the model object
+        # X_test_degree2 = pf.transform(X_test)
+        # create the model object
     lm2 = LinearRegression(normalize=True)
-
-    # fit the model to our training data. We must specify the column in y_train, 
-    # since we have converted it to a dataframe from a series! 
+        # fit the model to our training data. We must specify the column in y_train, 
+        # since we have converted it to a dataframe from a series! 
     lm2.fit(X_train_degree2, y_train.logerror)
-
-    # predict train
+        # predict train
     y_train['pred_lm2'] = lm2.predict(X_train_degree2)
-
-    # evaluate: rmse
+        # evaluate: rmse
     rmse_train = mean_squared_error(y_train.logerror, y_train.pred_lm2)**(1/2)
-
-    # predict validate
+        # predict validate
     y_validate['pred_lm2'] = lm2.predict(X_validate_degree2)
-
-    # evaluate: rmse
+        # evaluate: rmse
     rmse_validate = mean_squared_error(y_validate.logerror, y_validate.pred_lm2)**(1/2)
+        # evaluate r^2
+    r_sqr = explained_variance_score(y_validate.logerror, y_validate.pred_lm2)
 
-    print("RMSE for Polynomial Model, degrees=",degree, "\nTraining/In-Sample: ", rmse_train, 
-        "\nValidation/Out-of-Sample: ", rmse_validate)
+    # print("RMSE for Polynomial Model, degrees=",degree, "\nTraining/In-Sample: ", rmse_train, 
+    #     "\nValidation/Out-of-Sample: ", rmse_validate,
+    #     "\nr^2 validate:", r_sqr)
 
-    return y_validate
+    return rmse_train, rmse_validate, r_sqr
 
 #------------------------------------------------------------------------------------------------------
-#---------------Compare Regression---------------------------------------------------------------------
+#---------------Compare Regression Data Frame Function-------------------------------------------------
 
-def make_metric_df(y_train, y_train_pred, y_val, y_val_pred, model_name, metric_df):
+def make_metric_df(model_name, rmse_train, rmse_validate, r_sqr, metric_df):
     if metric_df.size ==0:
         metric_df = pd.DataFrame(data=[                         # Dictionary
             {
                 'model': model_name,                            # Pass Model Name
-                'RMSE Train': round(mean_squared_error(         # Pass Train Information
-                    y_train,
-                    y_train_pred) ** .5, 5),
-                'RMSE Validate': round(mean_squared_error(      # Pass Validate Information
-                    y_val,
-                    y_val_pred) ** .5, 5),
-                'r^2 Validate': explained_variance_score(       # Pass r^2 info
-                    y_val,
-                    y_val_pred)
+                'RMSE Train': round(rmse_train, 5),             # Pass Train RMSE Information
+                'RMSE Validate': round(rmse_validate, 5),       # Pass Validate RMSE Information
+                'r^2 Validate': r_sqr                           # Pass r^2 info
             }])
         return metric_df
     else:
         return metric_df.append(
             {
                 'model': model_name,                            # Pass Model Name
-                'RMSE Train': round(mean_squared_error(         # Pass Train Information
-                    y_train,
-                    y_train_pred) ** .5, 5),
-                'RMSE Validate': round(mean_squared_error(      # Pass Validate Information
-                    y_val,
-                    y_val_pred) ** .5, 5),
-                'r^2 Validate': explained_variance_score(       # Pass r^2 info
-                    y_val,
-                    y_val_pred)
+                'RMSE Train': round(rmse_train, 5),             # Pass Train RMSE Information
+                'RMSE Validate': round(rmse_validate, 5),       # Pass Validate RMSE Information
+                'r^2 Validate': r_sqr                           # Pass r^2 info
             }, ignore_index=True)
 
 #---------------Compare Regression---------------------------------------------------------------------
@@ -233,29 +225,28 @@ def model_compare(X_train, y_train, X_validate, y_validate):
     metric_df = pd.DataFrame()
 
     # Baseline
-    y_train_b, y_validate_b = baseline(y_train, y_validate)
+    rmse_train, rmse_validate, r_sqr = baseline(y_train, y_validate)
         # make our first entry into the metric_df with mean baseline
-    metric_df = make_metric_df(y_train_b.logerror,
-                            y_train_b.pred_mean,
-                            y_validate_b.logerror,
-                            y_validate_b.pred_mean,
-                            'mean_baseline',
+    metric_df = make_metric_df('Baseline (mean)',
+                            rmse_train,
+                            rmse_validate,
+                            r_sqr,
                             metric_df)
     # OLS
-    rmse_validate, y_validate_ols = linear_regression(X_train, y_train, X_validate, y_validate)
-
-    metric_df = metric_df.append({
-    'model': 'OLS Regressor',
-    'RMSE Train': round(rmse_train, 4), 
-    'RMSE Validate': round(rmse_validate, 4),
-    'r^2_validate': explained_variance_score(y_validate_ols.logerror, y_validate_ols.pred_lm)}, ignore_index=True)
+    rmse_train, rmse_validate, r_sqr = linear_regression(X_train, y_train, X_validate, y_validate)
+    metric_df = make_metric_df('OLS Regressor',
+                            rmse_train,
+                            rmse_validate,
+                            r_sqr,
+                            metric_df)
 
     # LassoLars
-    y_validate_ll = lasso_lars(X_train, y_train, X_validate, y_validate)
-    metric_df = make_metric_df(y_validate_ll.logerror,
-               y_validate_ll.pred_lars,
-               'lasso_alpha_1',
-               metric_df)
+    rmse_train, rmse_validate, r_sqr = lasso_lars(X_train, y_train, X_validate, y_validate)
+    metric_df = make_metric_df('Lasso: Alpha 1',
+                            rmse_train,
+                            rmse_validate,
+                            r_sqr,
+                            metric_df)
 
     # Tweedie:
         # power = 0: Normal Distribution
@@ -265,18 +256,20 @@ def model_compare(X_train, y_train, X_validate, y_validate):
         # power = 3: Inverse Gaussian Distribution
 
         # Tweedie regressor - Power 0
-    y_validate_t0 = tweedie_regressor(X_train, y_train, X_validate, y_validate, power=0, alpha=0)
-    metric_df = make_metric_df(y_validate_t0.logerror,
-                y_validate_t0.pred_glm,
-                'GLM Normal',
-                metric_df)
+    rmse_train, rmse_validate, r_sqr = tweedie_regressor(X_train, y_train, X_validate, y_validate, power=0, alpha=0)
+    metric_df = make_metric_df('GLM Normal',
+                            rmse_train,
+                            rmse_validate,
+                            r_sqr,
+                            metric_df)
     
         # Tweedie regressor - Power 1
-    y_validate_t1 = tweedie_regressor(X_train, y_train, X_validate, y_validate, power=1, alpha=0)
-    metric_df = make_metric_df(y_validate_t1.logerror,
-                y_validate_t1.pred_glm,
-                'GLM Poisson',
-                metric_df)
+    rmse_train, rmse_validate, r_sqr = tweedie_regressor(X_train, y_train, X_validate, y_validate, power=1, alpha=0)
+    metric_df = make_metric_df('GLM Poisson',
+                            rmse_train,
+                            rmse_validate,
+                            r_sqr,
+                            metric_df)
 
         # Tweedie regressor - Power 2
     # y_validate_t2 = tweedie_regressor(X_train, y_train, X_validate, y_validate, power=2, alpha=0)
@@ -293,18 +286,20 @@ def model_compare(X_train, y_train, X_validate, y_validate):
     #             metric_df)
     
     # Polynomial deg 2
-    y_validate_poly = polynomial_regression(X_train, y_train, X_validate, y_validate, degree=2)
-    metric_df = make_metric_df(y_validate_poly.logerror,
-                y_validate_poly.pred_lm2,
-                'Ploynomial 2deg',
-                metric_df)
+    rmse_train, rmse_validate, r_sqr = polynomial_regression(X_train, y_train, X_validate, y_validate, degree=2)
+    metric_df = make_metric_df('Polynomial 2deg',
+                            rmse_train,
+                            rmse_validate,
+                            r_sqr,
+                            metric_df)
 
     # Polynomial deg 3
-    y_validate_poly = polynomial_regression(X_train, y_train, X_validate, y_validate, degree=3)
-    metric_df = make_metric_df(y_validate_poly.logerror,
-                y_validate_poly.pred_lm2,
-                'Ploynomial 3deg',
-                metric_df)
+    rmse_train, rmse_validate, r_sqr = polynomial_regression(X_train, y_train, X_validate, y_validate, degree=3)
+    metric_df = make_metric_df('Polynomial 3deg',
+                            rmse_train,
+                            rmse_validate,
+                            r_sqr,
+                            metric_df)
 
     return metric_df
 
